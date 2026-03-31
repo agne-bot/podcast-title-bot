@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Podcast Title Generator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface2: #f0efe9;
+      --border: #e0ddd6;
+      --border2: #ccc9c0;
+      --text: #1a1916;
+      --text2: #6b6860;
+      --text3: #9e9b93;
+      --accent: #2d5a3d;
+      --accent-bg: #eaf2ec;
+      --accent-text: #1e3d29;
+      --purple: #4a3f7a;
+      --purple-bg: #eeecf8;
+      --purple-text: #2e2650;
+      --info-bg: #e8f0fe;
+      --info-text: #1a3a6b;
+      --radius: 10px;
+      --radius-sm: 6px;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .container { max-width: 740px; margin: 0 auto; }
+
+    header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: normal;
+      letter-spacing: -.02em;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .tagline {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.6;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    label .opt {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--text3);
+      font-size: 11px;
+    }
+
+    textarea, input[type="text"], select {
+      width: 100%;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      line-height: 1.6;
+      transition: border-color .15s;
+      appearance: none;
+    }
+
+    textarea { min-height: 150px; resize: vertical; }
+    textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    .opt-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+    .btn-primary {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      padding: 10px 24px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .btn-primary:hover { opacity: .88; }
+    .btn-primary:disabled { opacity: .4; cursor: default; }
+
+    .section { margin-top: 1.75rem; }
+
+    .sec-label {
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    .titles-grid { display: flex; flex-direction: column; gap: 8px; }
+
+    .t-row {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+
+    .t-row.selected { border-color: var(--accent); border-width: 1.5px; }
+
+    .t-num {
+      width: 38px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      color: var(--text3);
+      background: var(--surface2);
+      border-right: 1px solid var(--border);
+    }
+
+    .t-body { flex: 1; padding: 12px 14px; }
+
+    .t-title {
+      font-size: 15px;
+      font-weight: normal;
+      margin-bottom: 5px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    .score-bar { display: flex; gap: 12px; margin-bottom: 5px; }
+
+    .score-item {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot-seo { background: var(--accent); }
+    .dot-click { background: var(--purple); }
+
+    .t-why {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+
+    .t-actions {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      flex-shrink: 0;
+    }
+
+    .btn-pick {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 12px;
+      padding: 6px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text2);
+      white-space: nowrap;
+      transition: all .15s;
+    }
+
+    .btn-pick:hover { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent); }
+    .btn-pick.active { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+
+    .kw-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .pill {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: var(--info-bg);
+      color: var(--info-text);
+    }
+
+    .desc-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+
+    .desc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .selected-title-display {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: var(--text);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .desc-text {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 13px;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .copy-btn {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 11px;
+      padding: 5px 12px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .copy-btn:hover { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent); }
+
+    .loading {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      color: var(--text2);
+      padding: .75rem 0;
+    }
+
+    .err {
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 14px;
+      color: #a03030;
+      padding: .5rem 0;
+    }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 22px; }
+      .opt-row { grid-template-columns: 1fr; }
+      .t-actions { padding: 0 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="eyebrow">Kaleidoscope — Internal Tool</div>
+      <h1>Podcast Title Generator</h1>
+      <p class="tagline">Built on Christy's SEO &amp; titling framework. Paste a transcript, get 4 title options and a ready-to-use episode description.</p>
+    </header>
+
+    <div class="card">
+      <div class="field">
+        <label>Episode transcript or summary</label>
+        <textarea id="ep" placeholder="Paste your episode transcript or a short summary here..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="opt-row">
+        <div class="field">
+          <label>Show name <span class="opt">(optional)</span></label>
+          <input type="text" id="show" placeholder="e.g. Uncanny Valley" />
+        </div>
+        <div class="field">
+          <label>Episode format <span class="opt">(optional)</span></label>
+          <select id="format">
+            <option value="">— not specified —</option>
+            <option value="interview">Interview</option>
+            <option value="solo">Solo / monologue</option>
+            <option value="news recap">News recap / chat show</option>
+            <option value="narrative">Narrative / documentary</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tone</label>
+          <select id="tone">
+            <option value="balanced">Balanced (SEO + curiosity)</option>
+            <option value="seo">SEO-forward</option>
+            <option value="clickable">Clickability-forward</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="genBtn" onclick="generate()">Generate titles</button>
+    </div>
+
+    <div id="out"></div>
+  </div>
+
+  <script>
+    const SYSTEM = `You are a podcast episode title expert trained on Christy Mirabal's SEO and titling framework from Kaleidoscope.
+
+CHRISTY'S CORE FRAMEWORK:
+- Two jobs of a title: (1) FIND IT — SEO: clarity, proper nouns, searchable anchors; (2) CLICK IT — curiosity, stakes, tension
+- Target the middle-tier listener who decides based on episode metadata, not the superfan
+- Hook first — most important word or name goes at the very start (titles truncate on mobile)
+- Surface proper nouns (people, places, concepts) in the title itself, not just the description
+- Two-second test: instantly clear AND compelling in 2 seconds
+- Data-informed, not data-led — preserve the show's editorial voice
+
+AVOID:
+- Vague openers: "a story of," "a look at," "a peek into," "a deep dive into"
+- Puns or sarcasm — they require too much cognitive effort for the middle-tier listener
+- Jargon or inside baseball language
+- Keyword stuffing — Apple and Spotify penalize it
+- Burying the hook
+
+DESCRIPTION RULES:
+- Weave the top keyword naturally 3-4 times (not robotic repetition)
+- Open with a punchy hook — never a vague opener
+- Include 3 bulleted talking points as natural timestamp anchors
+- End with a compelling close
+- 150-200 words total
+
+OUTPUT ONLY valid JSON, no markdown, no preamble:
+{
+  "titles": [
+    { "title": "...", "seo_score": 1-10, "click_score": 1-10, "why": "One sentence on what makes this work per Christy's rules." }
+  ],
+  "top_keywords": ["keyword1", "keyword2", "keyword3"],
+  "description": "Full episode description here."
+}
+
+Generate exactly 4 title options. Vary them: different angles, different hooks, different balances of SEO vs clickability.`;
+
+    let _titles = [], _desc = '';
+
+    async function generate() {
+      const ep = document.getElementById('ep').value.trim();
+      if (!ep) return;
+
+      const show = document.getElementById('show').value.trim();
+      const format = document.getElementById('format').value;
+      const tone = document.getElementById('tone').value;
+      const btn = document.getElementById('genBtn');
+      const out = document.getElementById('out');
+
+      btn.disabled = true;
+      _titles = []; _desc = '';
+      out.innerHTML = '<p class="loading">Generating titles and description...</p>';
+
+      const toneNote = tone === 'seo'
+        ? 'Lean heavily toward SEO clarity over curiosity.'
+        : tone === 'clickable'
+        ? 'Lean heavily toward curiosity and clickability over SEO.'
+        : 'Balance SEO and clickability equally.';
+
+      const context = [
+        show ? `Show name: ${show}` : '',
+        format ? `Episode format: ${format}` : '',
+        `Tone preference: ${toneNote}`
+      ].filter(Boolean).join('\n');
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            system: SYSTEM,
+            messages: [{ role: 'user', content: `${context}\n\nEpisode content:\n${ep.slice(0, 8000)}` }]
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+          out.innerHTML = `<p class="err">Error: ${data.error.message || data.error}</p>`;
+          btn.disabled = false;
+          return;
+        }
+
+        const text = data.content?.find(b => b.type === 'text')?.text || '';
+        let parsed;
+        try { parsed = JSON.parse(text.replace(/```json|```/g, '').trim()); }
+        catch { out.innerHTML = '<p class="err">Could not parse response. Try again.</p>'; btn.disabled = false; return; }
+
+        _titles = parsed.titles || [];
+        _desc = parsed.description || '';
+        renderResults(parsed);
+      } catch(e) {
+        out.innerHTML = '<p class="err">Network error. Check your connection and try again.</p>';
+      }
+
+      btn.disabled = false;
+    }
+
+    function renderResults(parsed) {
+      const titlesHtml = _titles.map((t, i) => `
+        <div class="t-row" id="trow-${i}">
+          <div class="t-num">${i + 1}</div>
+          <div class="t-body">
+            <div class="t-title">${t.title}</div>
+            <div class="score-bar">
+              <div class="score-item"><span class="dot dot-seo"></span>SEO ${t.seo_score}/10</div>
+              <div class="score-item"><span class="dot dot-click"></span>Click ${t.click_score}/10</div>
+            </div>
+            <div class="t-why">${t.why}</div>
+          </div>
+          <div class="t-actions">
+            <button class="btn-pick" id="pick-${i}" onclick="selectTitle(${i})">Use this</button>
+          </div>
+        </div>`).join('');
+
+      const kwHtml = (parsed.top_keywords || []).map(k => `<span class="pill">${k}</span>`).join('');
+
+      document.getElementById('out').innerHTML = `
+        <div class="section">
+          <div class="sec-label">Title options</div>
+          <div class="titles-grid">${titlesHtml}</div>
+        </div>
+        <div class="section">
+          <div class="sec-label">Top keywords detected</div>
+          <div class="kw-pills">${kwHtml}</div>
+        </div>
+        <div class="section" id="desc-section" style="display:none">
+          <div class="desc-box">
+            <div class="desc-header">
+              <div class="sec-label" style="margin-bottom:0">Episode description</div>
+              <button class="copy-btn" onclick="copyAll()">Copy title + description</button>
+            </div>
+            <div class="selected-title-display" id="selected-title-display"></div>
+            <div class="desc-text" id="desc-text">${_desc}</div>
+          </div>
+        </div>`;
+    }
+
+    function selectTitle(i) {
+      document.querySelectorAll('.t-row').forEach((el, idx) => el.classList.toggle('selected', idx === i));
+      document.querySelectorAll('.btn-pick').forEach((el, idx) => {
+        el.classList.toggle('active', idx === i);
+        el.textContent = idx === i ? 'Selected' : 'Use this';
+      });
+      const t = _titles[i];
+      if (t) {
+        document.getElementById('selected-title-display').textContent = t.title;
+        document.getElementById('desc-section').style.display = 'block';
+      }
+    }
+
+    function copyAll() {
+      const titleEl = document.getElementById('selected-title-display');
+      const text = (titleEl?.textContent ? titleEl.textContent + '\n\n' : '') + _desc;
+      navigator.clipboard.writeText(text).catch(() => {});
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy title + description', 2000);
+    }
+  </script>
+</body>
+</html>
