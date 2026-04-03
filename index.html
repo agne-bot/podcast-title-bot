@@ -251,7 +251,10 @@ Generate exactly 4 title options built around the selected hook. Vary the approa
       btn.disabled = false;
     }
 
+    let _hooks = [];
+
     function renderHooks(hooks) {
+      _hooks = hooks;
       const letters = ['A','B','C','D'];
       const hooksHtml = hooks.map((h, i) => `
         <div class="hook-card" id="hook-${i}">
@@ -261,7 +264,7 @@ Generate exactly 4 title options built around the selected hook. Vary the approa
             <div class="hook-angle">${h.angle}</div>
           </div>
           <div class="hook-actions">
-            <button class="btn-pick" id="hpick-${i}" onclick="selectHook(${i}, ${JSON.stringify(h.hook)})">Use this</button>
+            <button class="btn-pick" id="hpick-${i}" onclick="selectHook(${i})">Use this</button>
           </div>
         </div>`).join('');
 
@@ -274,7 +277,8 @@ Generate exactly 4 title options built around the selected hook. Vary the approa
         <div id="titles-out"></div>`;
     }
 
-    async function selectHook(i, hookText) {
+    async function selectHook(i) {
+      const hookText = _hooks[i]?.hook || '';
       document.querySelectorAll('.hook-card').forEach((el, idx) => el.classList.toggle('selected', idx === i));
       document.querySelectorAll('[id^="hpick-"]').forEach((el, idx) => {
         el.classList.toggle('active', idx === i);
