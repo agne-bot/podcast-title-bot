@@ -252,7 +252,7 @@ Generate exactly 4 title options inspired by the selected hook. Use the hook as 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 800,
             system: HOOKS_SYSTEM,
             messages: [{ role: 'user', content: `Find the best hooks in this episode:\n\n${ep.slice(0, 8000)}` }]
@@ -322,7 +322,7 @@ Generate exactly 4 title options inspired by the selected hook. Use the hook as 
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-6',
             max_tokens: 1000,
             system: TITLES_SYSTEM,
             messages: [{ role: 'user', content: `${context}\n\nEpisode content:\n${_ep.slice(0, 8000)}` }]
